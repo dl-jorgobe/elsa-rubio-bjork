@@ -39,11 +39,12 @@
 
   /* CV (about) top left; bio (the name) at the bottom, left edge on the name;
      contact above the menu, left edge on "Contact", halfway to the top. Both set by place(). */
-  section[data-id="cv"] { top: 24px; left: 24px; width: min(340px, 40vw); max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
+  section[data-id="cv"] { top: 24px; left: 24px; width: min(520px, 45vw); max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
   section[data-id="cv"]::-webkit-scrollbar { display: none; }
-  section[data-id="cv"] .head:not(:first-child) { margin-top: 2em; }
-  section[data-id="bio"] { bottom: 24px; left: 24px; width: min(340px, 40vw); }
-  section[data-id="contact"] { transform: translateY(-50%); }
+  section[data-id="cv"] p + p { margin-top: 0; }
+  section[data-id="cv"] .head { margin-bottom: .5em; }
+  section[data-id="cv"] .head:not(:first-child) { margin-top: 1.5em; }
+  section[data-id="bio"] { bottom: 24px; left: 24px; width: min(480px, 40vw); }
 
   /* Works: titles scattered over the page (placed by scatter() below). Hovering one shows its
      picture to the left (bottoms aligned) and the material under the title; click steps to the next picture. */
@@ -51,6 +52,7 @@
   .work { position: absolute; white-space: nowrap; pointer-events: auto; }
   .work.many { cursor: e-resize; }
   .work img { display: none; position: absolute; bottom: 0; right: calc(100% + 8px); pointer-events: none; }
+  .work.flip img { right: auto; left: calc(100% + 8px); }
   .work .material { display: none; }
   .work:hover img, .work:hover .material, .work.measure .material { display: block; }
 </style>
@@ -130,7 +132,7 @@
   ];
 
   const PIC_H = 20;    // every picture has this height, vh
-  const GAP = 40;      // space kept around each title, px
+  const GAP = 20;      // space kept around each title, px
 
   const column = document.querySelector('[data-id="work"]');
   const shown = WORKS.map(() => 0);   // which picture each work shows
@@ -156,47 +158,84 @@
     column.appendChild(el);
   });
 
-  // Spread the titles at random. A title and its picture (left of it, any of its images)
-  // never cover the menu or another title; the other texts may sit underneath. Pictures may
-  // overlap each other, since only one shows at a time. Seeded, so the layout is the same on every visit.
+  // Spread the titles at random. A title and its picture (left of it, or right when the left has
+  // no room; sized for the widest of its images) never cover the menu, the other texts (open or
+  // not) or another title. Pictures may overlap each other, since only one shows at a time.
+  // Each work picks at random among the free spots on a grid; if a layout leaves a work without
+  // room, the next seed is tried. Seeded, so the layout is the same on every visit.
   function scatter() {
     if (!column.classList.contains('on')) return;
-    let seed = 11;
-    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const pad = 16, edge = 24;
+    const pad = 10, edge = 24, step = 12;
     const grow = (r, g) => ({ l: r.l - g, t: r.t - g, r: r.r + g, b: r.b + g });
     const rect = el => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
     const hit = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
-    const inside = a => a.l >= edge && a.t >= edge && a.r <= innerWidth - edge && a.b <= innerHeight - edge;
 
-    const menu = [grow(rect(document.querySelector('.menu')), 24)];
+    // Menu and the other texts, measured even when closed
+    const blocked = [grow(rect(document.querySelector('.menu')), 16),
+      ...[...document.querySelectorAll('section:not([data-id="work"])')].map(sec => {
+        const was = sec.classList.contains('on');
+        if (!was) { sec.style.visibility = 'hidden'; sec.classList.add('on'); }
+        const r = grow(rect(sec), pad);
+        if (!was) { sec.classList.remove('on'); sec.style.visibility = ''; }
+        return r;
+      })];
 
     const picH = innerHeight * PIC_H / 100;
-    const titles = [], pics = [];
-    column.querySelectorAll('.work').forEach((el, i) => {
+    const items = [...column.querySelectorAll('.work')].map((el, i) => {
       el.classList.add('measure');   // size with the material line showing
-      const w = el.offsetWidth, h = el.offsetHeight;
+      const it = { el, i, w: el.offsetWidth, h: el.offsetHeight, picW: picH * Math.max(...WORKS[i].images.map(im => im.ratio)) };
       el.classList.remove('measure');
-      const picW = picH * Math.max(...WORKS[i].images.map(im => im.ratio));
-      let T, P, ok = false, best = null;
-      for (let tries = 0; tries < 3000 && !ok; tries++) {
-        const x = edge + picW + 8 + rand() * Math.max(0, innerWidth - 2 * edge - picW - 8 - w);
-        const y = edge + rand() * Math.max(0, innerHeight - 2 * edge - h);
-        T = { l: x, t: y, r: x + w, b: y + h };
-        P = { l: x - 8 - picW, t: y + h - picH, r: x - 8, b: y + h };
-        // Count what this spot would cover; zero means free
-        const clash = menu.filter(a => hit(T, a) || hit(P, a)).length
-          + titles.filter(a => hit(T, grow(a, GAP)) || hit(P, grow(a, pad))).length
-          + pics.filter(a => hit(T, grow(a, pad))).length
-          + (inside(P) ? 0 : 1);
-        ok = clash === 0;
-        if (!best || clash < best.clash) best = { clash, T, P };
+      return it;
+    }).sort((a, b) => (b.picW + b.w) - (a.picW + a.w));   // biggest first, they are hardest to fit
+
+    let best = null;
+    for (let seed = 11; seed < 11 + 80; seed++) {
+      const relaxed = seed === 11 + 79;   // last try on small screens: pictures may sit over other texts
+      let s = seed;
+      const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
+      const titles = [], pics = [], spots = [];
+      let missing = 0;
+      for (const it of items) {
+        const free = [];
+        for (let x = edge; x + it.w <= innerWidth - edge; x += step)
+          for (let y = Math.max(edge, edge + picH - it.h); y + it.h <= innerHeight - edge; y += step) {
+            const T = { l: x, t: y, r: x + it.w, b: y + it.h };
+            if (blocked.some(a => hit(T, a)) || titles.some(a => hit(T, grow(a, GAP))) || pics.some(a => hit(T, grow(a, pad)))) continue;
+            // Left first; right only if the left has no room
+            for (const flip of [false]) {
+              const P = flip ? { l: x + it.w + 8, t: y + it.h - picH, r: x + it.w + 8 + it.picW, b: y + it.h }
+                             : { l: x - 8 - it.picW, t: y + it.h - picH, r: x - 8, b: y + it.h };
+              if (P.l < edge || P.r > innerWidth - edge) continue;
+              if ((!relaxed && blocked.some(a => hit(P, a))) || titles.some(a => hit(P, grow(a, pad)))) continue;
+              free.push({ T, P, flip });
+              break;
+            }
+          }
+        if (!free.length) { missing++; spots.push(null); continue; }
+        // Prefer spots with the picture on the left
+        const left = free.filter(f => !f.flip), pool = left.length ? left : free;
+        const f = pool[Math.floor(rand() * pool.length)];
+        titles.push(f.T); pics.push(f.P); spots.push(f);
       }
-      if (!ok) ({ T, P } = best);   // no free spot: take the one that covers least
-      el.style.left = T.l + 'px';
-      el.style.top = T.t + 'px';
-      titles.push(T); pics.push(P);
-      if (!ok) console.warn('No free spot for', WORKS[i].title);
+      if (!best || missing < best.missing) best = { missing, spots };
+      if (!missing) break;
+    }
+
+    items.forEach((it, k) => {
+      let f = best.spots[k];
+      if (!f) {
+        // Screen too small for everything: anywhere off the menu, so the work is never missing
+        console.warn('No free spot for', WORKS[it.i].title);
+        for (let n = 0; n < 500; n++) {
+          const x = edge + it.picW + 8 + Math.random() * Math.max(0, innerWidth - 2 * edge - it.picW - 8 - it.w);
+          const y = edge + picH + Math.random() * Math.max(0, innerHeight - 2 * edge - picH - it.h);
+          f = { T: { l: x, t: y, r: x + it.w, b: y + it.h }, flip: false };
+          if (!hit(f.T, blocked[0])) break;
+        }
+      }
+      it.el.style.left = f.T.l + 'px';
+      it.el.style.top = f.T.t + 'px';
+      it.el.classList.toggle('flip', f.flip);
     });
   }
 
@@ -215,13 +254,17 @@
     s.classList.contains('on') ? s.classList.remove('on') : open(a.dataset.to);
   }));
 
+  // About (CV) top left, contact under it, bio at the bottom left: one column of text,
+  // so the rest of the page stays free for the works.
   function place() {
-    const menu = document.querySelector('.menu').getBoundingClientRect();
-    const name = document.querySelector('.menu [data-to="bio"]').getBoundingClientRect();
-    const con = document.querySelector('.menu [data-to="contact"]').getBoundingClientRect();
-    document.querySelector('section[data-id="bio"]').style.left = name.left + 'px';
+    const cv = document.querySelector('section[data-id="cv"]');
+    const was = cv.classList.contains('on');
+    if (!was) { cv.style.visibility = 'hidden'; cv.classList.add('on'); }
+    const cvBottom = cv.getBoundingClientRect().bottom;
+    if (!was) { cv.classList.remove('on'); cv.style.visibility = ''; }
     const c = document.querySelector('section[data-id="contact"]').style;
-    c.left = con.left + 'px'; c.top = menu.top / 2 + 'px';
+    c.left = '24px'; c.top = (cvBottom + 24) + 'px';
+    document.querySelector('section[data-id="bio"]').style.left = '24px';
   }
   const layout = () => { place(); scatter(); };
   layout();
