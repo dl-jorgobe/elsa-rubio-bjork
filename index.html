@@ -162,8 +162,8 @@
   });
 
   // Spread the titles at random. A title and its picture (left of it, any of its images)
-  // never cover the menu, the other texts or another title. Pictures may overlap each other,
-  // since only one shows at a time. Seeded, so the layout is the same on every visit.
+  // never cover the menu or another title; the other texts may sit underneath. Pictures may
+  // overlap each other, since only one shows at a time. Seeded, so the layout is the same on every visit.
   function scatter() {
     if (!column.classList.contains('on')) return;
     let seed = 11;
@@ -175,8 +175,6 @@
     const inside = a => a.l >= edge && a.t >= edge && a.r <= innerWidth - edge && a.b <= innerHeight - edge;
 
     const menu = [grow(rect(document.querySelector('.menu')), 24)];
-    // The other texts that are open right now (the works are placed again when that changes)
-    const texts = [...document.querySelectorAll('section.on:not([data-id="work"])')].map(sec => grow(rect(sec), pad));
 
     const picH = innerHeight * PIC_H / 100;
     const titles = [], pics = [];
@@ -192,7 +190,7 @@
         T = { l: x, t: y, r: x + w, b: y + h };
         P = { l: x - 8 - picW, t: y + h - picH, r: x - 8, b: y + h };
         // Count what this spot would cover; zero means free
-        const clash = [...menu, ...texts].filter(a => hit(T, a) || hit(P, a)).length
+        const clash = menu.filter(a => hit(T, a) || hit(P, a)).length
           + titles.filter(a => hit(T, grow(a, GAP)) || hit(P, grow(a, pad))).length
           + pics.filter(a => hit(T, grow(a, pad))).length
           + (inside(P) ? 0 : 1);
@@ -212,7 +210,7 @@
     const s = document.querySelector(`section[data-id="${id}"]`);
     if (!s || s.classList.contains('on')) return;
     s.classList.add('on');
-    scatter();
+    if (id === 'work') scatter();
   }
 
   document.querySelectorAll('.menu > a').forEach(a => a.addEventListener('click', e => {
