@@ -135,16 +135,16 @@
       images: [img('every-year-1.jpg', .667), img('every-year-2.jpg', .667), img('every-year-3.jpg', .667)] },
   ];
 
-  const PIC_H = 40;    // picture height, vh
-  const PIC_W = 32;    // widest a picture gets, vw
-  const MIN_BOTTOM = .28;   // no work's text ends higher than this share of the page
+  const PIC_H = 28;    // every picture has this height, vh
+  const MIN_BOTTOM = .32;   // no work's text ends higher than this share of the page, so the picture fits above
+  const GAP = 64;      // space kept between two works, px
 
   const column = document.querySelector('[data-id="work"]');
   const shown = WORKS.map(() => 0);   // which picture each work shows
 
   function setPic(el, w, n) {
     const im = w.images[n];
-    el.style.height = `min(${PIC_H}vh, ${PIC_W / im.ratio}vw)`;
+    el.style.height = PIC_H + 'vh';
     el.style.aspectRatio = im.ratio;
     el.src = im.src;
     el.alt = w.title;
@@ -158,8 +158,6 @@
     // Picture goes to the left; only flips right when there is no room on the left
     el.addEventListener('mouseenter', () => {
       const pic = el.querySelector('img');
-      // Never taller than the room above the text's bottom line
-      pic.style.maxHeight = (el.getBoundingClientRect().bottom - 24) + 'px';
       pic.style.width = 'auto';
       el.classList.remove('flip');
       if (el.getBoundingClientRect().left - 8 < pic.getBoundingClientRect().width) el.classList.add('flip');
@@ -207,7 +205,7 @@
       }
       el.style.left = box.l + 'px';
       el.style.top = box.t + 'px';
-      placed.push(grow({ left: box.l, top: box.t, right: box.r, bottom: box.b }, pad));
+      placed.push(grow({ left: box.l, top: box.t, right: box.r, bottom: box.b }, GAP));
     });
   }
 
