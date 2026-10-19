@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elsa Rubio Björk</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; background: #fff; }
+  body {
+    color: #000;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 12px;   /* 9pt, everything */
+    line-height: 1.3;
+  }
+  a { color: inherit; text-decoration: none; }
+  p + p { margin-top: 1em; }
+
+  /* Menu: each word starts where the line above ends.
+     The grid's auto columns take each word's width, so the staircase builds itself. */
+  .menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    grid-template-columns: repeat(6, auto);
+    column-gap: .25em;
+    white-space: nowrap;
+    z-index: 10;
+  }
+  .menu a:nth-child(1) { grid-area: 1 / 1; }
+  .menu a:nth-child(2) { grid-area: 2 / 2; }
+  .menu a:nth-child(3) { grid-area: 3 / 3; }
+  .menu a:nth-child(4) { grid-area: 4 / 4; }
+  .menu a:nth-child(5) { grid-area: 5 / 5; }
+  .menu a:nth-child(6) { grid-area: 6 / 6; }
+
+  section { display: none; position: fixed; z-index: 5; }
+  section.on { display: block; }
+
+  /* Education and contact line up with their word in the menu (left edge),
+     centred between the menu and the top / bottom of the page. Placed by place() below. */
+  section.near { width: 300px; transform: translateY(-50%); }
+
+  /* Exhibitions top left, bio bottom left */
+  section[data-id="exhibitions"] { top: 24px; left: 24px; width: min(340px, 40vw); }
+  section[data-id="bio"] { bottom: 24px; left: 24px; width: min(340px, 40vw); }
+  .head { margin-bottom: 1em; }
+
+  /* Works: endless vertical scroll down the right side, pictures edge to edge.
+     Click a picture with more than one image to see the next. */
+  section[data-id="work"].on {
+    display: flex; inset: 0; z-index: 1;
+    flex-direction: column; align-items: flex-end;
+    overflow-y: scroll; scrollbar-width: none;
+    pointer-events: none;   /* everything else stays clickable; wheel is forwarded below */
+  }
+  section[data-id="work"]::-webkit-scrollbar { display: none; }
+  .work { display: flex; align-items: flex-end; gap: 8px; flex: none; pointer-events: auto; }
+  .work.many { cursor: e-resize; }
+  .work figcaption { white-space: nowrap; text-align: right; }
+  .work img { display: block; height: auto; object-fit: cover; }
+</style>
+</head>
+<body>
+
+<nav class="menu">
+  <a href="./" data-to="">Elsa Rubio Björk,</a>
+  <a href="#" data-to="work">work,</a>
+  <a href="#" data-to="exhibitions">exhibitions,</a>
+  <a href="#" data-to="bio">bio,</a>
+  <a href="#" data-to="education">education,</a>
+  <a href="#" data-to="contact">contact.</a>
+</nav>
+
+<section data-id="education" class="near"><div>
+  <p>BA in Fine Arts, Gerrit Rietveld Academie, Amsterdam, The Netherlands, 2022–2026</p>
+  <p>Artschool Distance Course, Konstskolan Distans, Ölands Folkhögskola, 2022–2023</p>
+  <p>Preparatory year 2 (Fine Arts), Konstskolan 2, Ölands Folkhögskola, Sweden, 2021–2022</p>
+  <p>Art foundation year, Konstnärlig grundutbildning, Folkuniversitet Stockholm, Sweden, 2020–2021</p>
+</div></section>
+<section data-id="contact" class="near"><div>
+  <p><a href="https://www.instagram.com/elssssita/" target="_blank" rel="noopener">@elssssita</a><br>
+    <a href="mailto:elsa.rb.98@gmail.com">elsa.rb.98@gmail.com</a><br>
+    +46 76-306 55 45</p>
+</div></section>
+
+<section data-id="exhibitions">
+  <p>2026 “Upspring”, M4 Gastatelier, Amsterdam, NL</p>
+  <p>2026 “Worn and Seen”, Amsterdam, NL</p>
+  <p>2025 “New Years Edition by Palet”, curated by Eva Van Wolferen, Sissi’s, Amsterdam, NL</p>
+  <p>2025 “Mind your Business”, curated by Lorem Ipsum Empire, Amsterdam, NL</p>
+  <p>2025 “There’s something buzzing in my ear”, Garnalenkerk, Amsterdam, NL. Co-curated together with Siri Tvorup and Nara Kim</p>
+  <p>2025 “The Sexhop Artshow”, curated by Simomo Bouj, No Limits! Art Castle, Amsterdam, NL</p>
+  <p>2025 “Bare Bones”, Group Exhibition with Fine Arts 2, curated by Suzanne Van de Ven, Pakt Foundation, Amsterdam, NL</p>
+  <p>2025 Performer in Sohju Kim’s performance “Crosswalk Talk” at Uncut, Stedelijk Museum, Amsterdam, NL</p>
+  <p>2024 “I AM OVERWHELMED BY IMAGES”, curated by Anahit Yakubovich, Sexyland, Amsterdam, NL</p>
+  <p>2024 “Kunstnernes Efterårsudstilling”, Den Frie Centre of Contemporary Art, Copenhagen, DK</p>
+  <p>2023 Performer in Pieke Pleijer’s performance “Mutual Weight” at Uncut, Stedelijk Museum, Amsterdam, NL</p>
+  <p>2022 “How to dig a Tunnel”, curated by Richard Krantz, Kalmar Contemporary Art Museum, Kalmar, SE</p>
+  <p>2021 “Socker, Spice &amp; Everything Nice”, Mörbylånga Sugar Mill, Öland, SE</p>
+</section>
+
+<section data-id="bio">
+  <p>Elsa Rubio Björk (she/her, b. 1998, Cádiz) is a Swedish and Spanish artist based in Amsterdam. In her sculptural practice, Björk works with make-overs; recognizable everyday objects and tropes that get enlarged, distorted, manipulated, or ridiculed. Through replicas and modified ready-mades, she plays with the given associations of objects to examine the relationships we already have to them in order to challenge their narratives. With sharp irony and bold directness, Björk approaches more sensitive subjects such as power structures, social stereotypes as well as gendered and class-based dynamics and processes of objectification. Her work draws inspiration from internet, pop culture and consumerism. Referring to her sculptures as performers, Björk presents well-known tropes and images cast as recognizable characters, starring in a familiar play where the plot has been changed.</p>
+  <p>Björk’s works have previously been exhibited at Den Frie, Centre of Contemporary Art in Denmark for Kunstnernes Efterårsudstilling 2025, and at Kalmars Contemporary Art Museum, Sweden.</p>
+</section>
+
+<section data-id="work"></section>
+
+<script>
+  // One entry per work. Clicking a work steps through its images.
+  // size = picture height in vh (varies per work, 56–80); ratio = width / height.
+  const img = (src, ratio) => ({ src: 'images/' + src, ratio });
+  const WORKS = [
+    { title: 'Show Pony (2026)', lines: ['Acrylic nails, acrylic hair, acrylic tube', '200 x Ø 3'], size: 70,
+      images: [img('showpony-1.jpg', 1.219), img('showpony-2.jpg', .667), img('showpony-3.jpg', .667)] },
+    { title: 'In Good Standing (2025)', lines: ['In Situ Intervention. Adhesive film'], size: 60,
+      images: [img('in-good-standing.jpg', 1.5), img('in-good-standing-2.jpg', .741), img('in-good-standing-3.jpg', .656)] },
+    { title: 'Handle with Care (2025)', lines: ['IKEA cardboard moving boxes', '200 x 170 x 50 cm'], size: 78,
+      images: [img('handle-with-care.jpg', 1.778), img('handle-with-care-2.jpg', 1.779), img('handle-with-care-3.jpg', 1.779), img('handle-with-care-4.jpg', .747)] },
+    { title: 'Credit Crisis (2025)', lines: ['MDF, pine wood, aerosol paint and lacquer, sanding paper', 'Credit card 60 x 100 cm and matches in varying sizes'], size: 64,
+      images: [img('credit-crisis.jpg', 1.624), img('credit-crisis-2.jpg', .667), img('credit-crisis-3.jpg', .667)] },
+    { title: 'Key Account Manager (2025)', lines: ['Stainless steel, found footage inkjet print', 'Ø 40 x 5 cm'], size: 56,
+      images: [img('key-account-manager.jpg', 1.222), img('key-account-manager-2.jpg', 1.5)] },
+    { title: 'VIP 4-ever (2025)', lines: ['Bisqued stoneware, aerosol coating', '130 x 10 cm'], size: 80,
+      images: [img('vip-4-ever.jpg', 1.199), img('vip-4-ever-2.jpg', .667), img('vip-4-ever-3.jpg', .667)] },
+    { title: 'Self-Myofascial Release (2024)', lines: ['Glazed and bisqued stoneware, gym mats', '30 x 30 x 45 cm, 20 x 20 x 36 cm'], size: 62,
+      images: [img('self-myofascial-release.jpg', 1.428), img('self-myofascial-release-2.jpg', 1.5), img('self-myofascial-release-3.jpg', .666), img('self-myofascial-release-4.jpg', 1.5)] },
+    { title: 'Compulsive Care (2024)', lines: ['Bisqued stoneware, aerosol paint', 'Ø 61 x 7 cm'], size: 58,
+      images: [img('compulsive-care.jpg', .8), img('compulsive-care-2.jpg', .801)] },
+    { title: 'Future Artifacts (2024)', lines: ['Wood, ceramics, LED lights'], size: 72,
+      images: [img('future-artifacts.jpg', 1.527), img('future-artifacts-2.jpg', .667), img('future-artifacts-3.jpg', 1.5)] },
+    { title: 'Confetti (Fissile)', lines: [], size: 60,
+      images: [img('confetti-fissile.jpg', 1.5), img('confetti-fissile-2.jpg', .667), img('confetti-fissile-3.jpg', .667)] },
+    { title: 'Untitled (balloons)', lines: [], size: 74,
+      images: [img('untitled-balloons.jpg', 1.778), img('untitled-balloons-2.jpg', 1.071), img('untitled-balloons-3.jpg', .673)] },
+    { title: 'Every year it’s the same', lines: [], size: 58,
+      images: [img('every-year-1.jpg', .667), img('every-year-2.jpg', .667), img('every-year-3.jpg', .667)] },
+  ];
+
+  const MAXW = 46;    // widest the biggest work gets, vw; smaller works get a narrower limit
+
+  const column = document.querySelector('[data-id="work"]');
+  const shown = WORKS.map(() => 0);   // which picture each work shows
+
+  function setPic(el, w, n) {
+    const im = w.images[n];
+    // The first picture sets the height; every picture of the work keeps it, only the width changes
+    const first = w.images[0].ratio;
+    el.style.height = `min(${w.size}vh, ${MAXW * w.size / 80 / first}vw)`;
+    el.style.width = 'auto';
+    el.style.aspectRatio = im.ratio;
+    el.src = im.src;
+    el.alt = w.title;
+  }
+
+  function makeWork(w, i) {
+    const fig = document.createElement('figure');
+    fig.className = 'work' + (w.images.length > 1 ? ' many' : '');
+    fig.dataset.i = i;
+    fig.innerHTML = `<figcaption>${[w.title, ...w.lines].join('<br>')}</figcaption><img>`;
+    setPic(fig.querySelector('img'), w, 0);
+    return fig;
+  }
+
+  // Three copies of the list; the view jumps between them so the scroll never ends
+  for (let copy = 0; copy < 3; copy++) WORKS.forEach((w, i) => column.appendChild(makeWork(w, i)));
+  const setHeight = () => column.scrollHeight / 3;
+  column.addEventListener('scroll', () => {
+    const h = setHeight();
+    if (column.scrollTop < h * .5) column.scrollTop += h;
+    else if (column.scrollTop > h * 1.5) column.scrollTop -= h;
+  });
+
+  column.addEventListener('click', e => {
+    const fig = e.target.closest('.work');
+    if (!fig) return;
+    const i = +fig.dataset.i, w = WORKS[i];
+    if (w.images.length < 2) return;
+    shown[i] = (shown[i] + 1) % w.images.length;
+    column.querySelectorAll(`.work[data-i="${i}"] img`).forEach(el => setPic(el, w, shown[i]));
+  });
+
+  // Scroll the works from anywhere on the page
+  window.addEventListener('wheel', e => {
+    if (column.classList.contains('on')) column.scrollTop += e.deltaY;
+  }, { passive: true });
+
+  // Sections stay open as more are clicked; only the name closes them.
+  function open(id) {
+    const s = document.querySelector(`section[data-id="${id}"]`);
+    if (!s || s.classList.contains('on')) return;
+    s.classList.add('on');
+    if (id === 'work') column.scrollTop = setHeight();
+  }
+
+  document.querySelectorAll('.menu > a').forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    if (a.dataset.to) open(a.dataset.to);
+    else document.querySelectorAll('section').forEach(s => s.classList.remove('on'));
+  }));
+
+  function place() {
+    const menu = document.querySelector('.menu').getBoundingClientRect();
+    const edu = document.querySelector('.menu [data-to="education"]').getBoundingClientRect();
+    const con = document.querySelector('.menu [data-to="contact"]').getBoundingClientRect();
+    const e = document.querySelector('section[data-id="education"]').style;
+    const c = document.querySelector('section[data-id="contact"]').style;
+    e.left = edu.left + 'px'; e.top = menu.top / 2 + 'px';
+    c.left = con.left + 'px'; c.top = (con.bottom + innerHeight) / 2 + 'px';
+  }
+  place();
+  addEventListener('resize', place);
+
+  // ?open=work,bio opens sections on load
+  new URLSearchParams(location.search).get('open')?.split(',').forEach(open);
+</script>
+</body>
+</html>
