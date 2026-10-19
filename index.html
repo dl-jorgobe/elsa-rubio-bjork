@@ -39,7 +39,7 @@
 
   /* CV (about) top left; bio (the name) at the bottom, left edge on the name;
      contact above the menu, left edge on "Contact", halfway to the top. Both set by place(). */
-  section[data-id="cv"] { top: 24px; left: 24px; width: min(520px, 45vw); max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
+  section[data-id="cv"] { top: 24px; left: 24px; width: max-content; white-space: nowrap; max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
   section[data-id="cv"]::-webkit-scrollbar { display: none; }
   section[data-id="cv"] p + p { margin-top: 0; }
   section[data-id="cv"] .head { margin-bottom: .5em; }
@@ -221,6 +221,7 @@
       if (!missing) break;
     }
 
+    document.body.dataset.unplaced = best.missing;   // works that had to fall back (0 = all clear)
     items.forEach((it, k) => {
       let f = best.spots[k];
       if (!f) {
