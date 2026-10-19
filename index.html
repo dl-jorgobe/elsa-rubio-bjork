@@ -137,12 +137,21 @@
   const column = document.querySelector('[data-id="work"]');
   const shown = WORKS.map(() => 0);   // which picture each work shows
 
+  // Load every picture up front, so stepping through a work is instant
+  const cache = {};
+  WORKS.forEach(w => w.images.forEach(im => { cache[im.src] = new Image(); cache[im.src].src = im.src; }));
+
+  // Swap only once the next picture has loaded, so the box and the picture change together
   function setPic(el, w, n) {
     const im = w.images[n];
-    el.style.height = PIC_H + 'vh';
-    el.style.aspectRatio = im.ratio;
-    el.src = im.src;
-    el.alt = w.title;
+    const swap = () => {
+      el.style.height = PIC_H + 'vh';
+      el.style.aspectRatio = im.ratio;
+      el.src = im.src;
+      el.alt = w.title;
+    };
+    const pre = cache[im.src];
+    pre.complete && pre.naturalWidth ? swap() : pre.addEventListener('load', swap, { once: true });
   }
 
   WORKS.forEach((w, i) => {
