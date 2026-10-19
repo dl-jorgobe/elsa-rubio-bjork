@@ -37,11 +37,13 @@
   section { display: none; position: fixed; z-index: 5; }
   section.on { display: block; }
 
-  /* CV top left; about at the bottom, left edge on the name (set by place()) */
+  /* CV (about) top left; bio (the name) at the bottom, left edge on the name;
+     contact above the menu, left edge on "Contact", halfway to the top. Both set by place(). */
   section[data-id="cv"] { top: 24px; left: 24px; width: min(340px, 40vw); max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
   section[data-id="cv"]::-webkit-scrollbar { display: none; }
   section[data-id="cv"] .head:not(:first-child) { margin-top: 2em; }
-  section[data-id="about"] { bottom: 24px; left: 24px; width: min(340px, 40vw); }
+  section[data-id="bio"] { bottom: 24px; left: 24px; width: min(340px, 40vw); }
+  section[data-id="contact"] { transform: translateY(-50%); }
 
   /* Works: titles scattered over the page (placed by scatter() below). Hovering one shows its
      picture to the left (bottoms aligned) and the material under the title; click steps to the next picture. */
@@ -56,10 +58,10 @@
 <body>
 
 <nav class="menu">
-  <a href="./" data-to="">Elsa Rubio Björk,</a>
-  <a href="#" data-to="work">work,</a>
-  <a href="#" data-to="cv">life,</a>
-  <a href="#" data-to="about">balance.</a>
+  <a href="#" data-to="contact">Contact</a>
+  <a href="#" data-to="bio">Elsa Rubio Björk</a>
+  <a href="#" data-to="cv">about</a>
+  <a href="#" data-to="work">work</a>
 </nav>
 
 <section data-id="cv">
@@ -84,9 +86,12 @@
   <p>2021 “Socker, Spice &amp; Everything Nice”, Mörbylånga Sugar Mill, Öland, SE</p>
 </section>
 
-<section data-id="about">
+<section data-id="bio">
   <p>Elsa Rubio Björk (she/her, b. 1998, Cádiz) is a Swedish and Spanish artist based in Amsterdam. In her sculptural practice, Björk works with make-overs; recognizable everyday objects and tropes that get enlarged, distorted, manipulated, or ridiculed. Through replicas and modified ready-mades, she plays with the given associations of objects to examine the relationships we already have to them in order to challenge their narratives. With sharp irony and bold directness, Björk approaches more sensitive subjects such as power structures, social stereotypes as well as gendered and class-based dynamics and processes of objectification. Her work draws inspiration from internet, pop culture and consumerism. Referring to her sculptures as performers, Björk presents well-known tropes and images cast as recognizable characters, starring in a familiar play where the plot has been changed.</p>
   <p>Björk’s works have previously been exhibited at Den Frie, Centre of Contemporary Art in Denmark for Kunstnernes Efterårsudstilling 2025, and at Kalmars Contemporary Art Museum, Sweden.</p>
+</section>
+
+<section data-id="contact">
   <p><a href="https://www.instagram.com/elssssita/" target="_blank" rel="noopener">@elssssita</a><br>
     <a href="mailto:elsa.rb.98@gmail.com">elsa.rb.98@gmail.com</a><br>
     +46 76-306 55 45</p>
@@ -195,7 +200,7 @@
     });
   }
 
-  // Sections stay open as more are clicked; only the name closes them.
+  // Sections stay open as more are clicked.
   function open(id) {
     const s = document.querySelector(`section[data-id="${id}"]`);
     if (!s || s.classList.contains('on')) return;
@@ -203,22 +208,27 @@
     if (id === 'work') scatter();
   }
 
+  // Each word opens its text; clicking it again closes it
   document.querySelectorAll('.menu > a').forEach(a => a.addEventListener('click', e => {
     e.preventDefault();
-    if (a.dataset.to) open(a.dataset.to);
-    else document.querySelectorAll('section').forEach(s => s.classList.remove('on'));
+    const s = document.querySelector(`section[data-id="${a.dataset.to}"]`);
+    s.classList.contains('on') ? s.classList.remove('on') : open(a.dataset.to);
   }));
 
   function place() {
-    const name = document.querySelector('.menu [data-to=""]').getBoundingClientRect();
-    document.querySelector('section[data-id="about"]').style.left = name.left + 'px';
+    const menu = document.querySelector('.menu').getBoundingClientRect();
+    const name = document.querySelector('.menu [data-to="bio"]').getBoundingClientRect();
+    const con = document.querySelector('.menu [data-to="contact"]').getBoundingClientRect();
+    document.querySelector('section[data-id="bio"]').style.left = name.left + 'px';
+    const c = document.querySelector('section[data-id="contact"]').style;
+    c.left = con.left + 'px'; c.top = menu.top / 2 + 'px';
   }
   const layout = () => { place(); scatter(); };
   layout();
   addEventListener('resize', layout);
   addEventListener('load', layout);
 
-  // ?open=work,about opens sections on load
+  // ?open=work,bio opens sections on load
   new URLSearchParams(location.search).get('open')?.split(',').forEach(open);
 </script>
 </body>
