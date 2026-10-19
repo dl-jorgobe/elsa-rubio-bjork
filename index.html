@@ -209,9 +209,15 @@
     const e = document.querySelector('section[data-id="education"]').style;
     const c = document.querySelector('section[data-id="contact"]').style;
     e.left = edu.left + 'px'; e.top = menu.top / 2 + 'px';
-    c.left = con.left + 'px'; c.top = (con.bottom + innerHeight) / 2 + 'px';
     const name = document.querySelector('.menu [data-to=""]').getBoundingClientRect();
-    document.querySelector('section[data-id="bio"]').style.left = name.left + 'px';
+    const bio = document.querySelector('section[data-id="bio"]');
+    bio.style.left = name.left + 'px';
+    // Measure the bio even when closed, so contact always sits between "contact." and the bio
+    const wasOpen = bio.classList.contains('on');
+    if (!wasOpen) { bio.style.visibility = 'hidden'; bio.classList.add('on'); }
+    const bioTop = bio.getBoundingClientRect().top;
+    if (!wasOpen) { bio.classList.remove('on'); bio.style.visibility = ''; }
+    c.left = con.left + 'px'; c.top = (con.bottom + bioTop) / 2 + 'px';
   }
   place();
   addEventListener('resize', place);
