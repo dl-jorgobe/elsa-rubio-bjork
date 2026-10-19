@@ -43,7 +43,7 @@
      centred between the menu and the top / bottom of the page. Placed by place() below. */
   section.near { width: 300px; transform: translateY(-50%); }
 
-  /* Exhibitions top left, bio bottom left */
+  /* Exhibitions top left; bio at the bottom, left edge on the name (set by place()) */
   section[data-id="exhibitions"] { top: 24px; left: 24px; width: min(340px, 40vw); }
   section[data-id="bio"] { bottom: 24px; left: 24px; width: min(340px, 40vw); }
   .head { margin-bottom: 1em; }
@@ -210,6 +210,8 @@
     const c = document.querySelector('section[data-id="contact"]').style;
     e.left = edu.left + 'px'; e.top = menu.top / 2 + 'px';
     c.left = con.left + 'px'; c.top = (con.bottom + innerHeight) / 2 + 'px';
+    const name = document.querySelector('.menu [data-to=""]').getBoundingClientRect();
+    document.querySelector('section[data-id="bio"]').style.left = name.left + 'px';
   }
   place();
   addEventListener('resize', place);
