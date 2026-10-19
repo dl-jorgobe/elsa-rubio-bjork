@@ -48,15 +48,14 @@
   section[data-id="bio"] { bottom: 24px; left: 24px; width: min(340px, 40vw); }
   .head { margin-bottom: 1em; }
 
-  /* Works: titles and descriptions scattered over the page (placed by scatter() below).
-     Hovering one shows its picture to the left, bottoms aligned; click steps to the next picture. */
+  /* Works: titles scattered over the page (placed by scatter() below). Hovering one shows its
+     picture to the left (bottoms aligned) and the material under the title; click steps to the next picture. */
   section[data-id="work"].on { inset: 0; z-index: 4; pointer-events: none; }
   .work { position: absolute; white-space: nowrap; pointer-events: auto; }
   .work.many { cursor: e-resize; }
   .work img { display: none; position: absolute; bottom: 0; right: calc(100% + 8px); pointer-events: none; }
-  .work.flip img { right: auto; left: calc(100% + 8px); }
-  .work:hover { z-index: 1; }
-  .work:hover img { display: block; }
+  .work .material { display: none; }
+  .work:hover img, .work:hover .material, .work.measure .material { display: block; }
 </style>
 </head>
 <body>
@@ -106,38 +105,37 @@
 <section data-id="work"></section>
 
 <script>
-  // One entry per work. Clicking a work steps through its images. ratio = width / height.
+  // One entry per work: title (year), material. Clicking a work steps through its images. ratio = width / height.
   const img = (src, ratio) => ({ src: 'images/' + src, ratio });
   const WORKS = [
-    { title: 'Show Pony (2026)', lines: ['Acrylic nails, acrylic hair, acrylic tube', '200 x Ø 3'],
+    { title: 'Show Pony (2026)', material: 'Acrylic nails, acrylic hair, acrylic tube',
       images: [img('showpony-1.jpg', 1.219), img('showpony-2.jpg', .667), img('showpony-3.jpg', .667)] },
-    { title: 'In Good Standing (2025)', lines: ['In Situ Intervention. Adhesive film'],
+    { title: 'In Good Standing (2025)', material: 'In Situ Intervention. Adhesive film',
       images: [img('in-good-standing.jpg', 1.5), img('in-good-standing-2.jpg', .741), img('in-good-standing-3.jpg', .656)] },
-    { title: 'Handle with Care (2025)', lines: ['IKEA cardboard moving boxes', '200 x 170 x 50 cm'],
+    { title: 'Handle with Care (2025)', material: 'IKEA cardboard moving boxes',
       images: [img('handle-with-care.jpg', 1.778), img('handle-with-care-2.jpg', 1.779), img('handle-with-care-3.jpg', 1.779), img('handle-with-care-4.jpg', .747)] },
-    { title: 'Credit Crisis (2025)', lines: ['MDF, pine wood, aerosol paint and lacquer, sanding paper', 'Credit card 60 x 100 cm and matches in varying sizes'],
+    { title: 'Credit Crisis (2025)', material: 'MDF, pine wood, aerosol paint and lacquer, sanding paper',
       images: [img('credit-crisis.jpg', 1.624), img('credit-crisis-2.jpg', .667), img('credit-crisis-3.jpg', .667)] },
-    { title: 'Key Account Manager (2025)', lines: ['Stainless steel, found footage inkjet print', 'Ø 40 x 5 cm'],
+    { title: 'Key Account Manager (2025)', material: 'Stainless steel, found footage inkjet print',
       images: [img('key-account-manager.jpg', 1.222), img('key-account-manager-2.jpg', 1.5)] },
-    { title: 'VIP 4-ever (2025)', lines: ['Bisqued stoneware, aerosol coating', '130 x 10 cm'],
+    { title: 'VIP 4-ever (2025)', material: 'Bisqued stoneware, aerosol coating',
       images: [img('vip-4-ever.jpg', 1.199), img('vip-4-ever-2.jpg', .667), img('vip-4-ever-3.jpg', .667)] },
-    { title: 'Self-Myofascial Release (2024)', lines: ['Glazed and bisqued stoneware, gym mats', '30 x 30 x 45 cm, 20 x 20 x 36 cm'],
+    { title: 'Self-Myofascial Release (2024)', material: 'Glazed and bisqued stoneware, gym mats',
       images: [img('self-myofascial-release.jpg', 1.428), img('self-myofascial-release-2.jpg', 1.5), img('self-myofascial-release-3.jpg', .666), img('self-myofascial-release-4.jpg', 1.5)] },
-    { title: 'Compulsive Care (2024)', lines: ['Bisqued stoneware, aerosol paint', 'Ø 61 x 7 cm'],
+    { title: 'Compulsive Care (2024)', material: 'Bisqued stoneware, aerosol paint',
       images: [img('compulsive-care.jpg', .8), img('compulsive-care-2.jpg', .801)] },
-    { title: 'Future Artifacts (2024)', lines: ['Wood, ceramics, LED lights'],
+    { title: 'Future Artifacts (2024)', material: 'Wood, ceramics, LED lights',
       images: [img('future-artifacts.jpg', 1.527), img('future-artifacts-2.jpg', .667), img('future-artifacts-3.jpg', 1.5)] },
-    { title: 'Confetti (Fissile)', lines: [],
+    { title: 'Confetti (Fissile)', material: '',
       images: [img('confetti-fissile.jpg', 1.5), img('confetti-fissile-2.jpg', .667), img('confetti-fissile-3.jpg', .667)] },
-    { title: 'Untitled (balloons)', lines: [],
+    { title: 'Untitled (balloons)', material: '',
       images: [img('untitled-balloons.jpg', 1.778), img('untitled-balloons-2.jpg', 1.071), img('untitled-balloons-3.jpg', .673)] },
-    { title: 'Every year it’s the same', lines: [],
+    { title: 'Every year it’s the same', material: '',
       images: [img('every-year-1.jpg', .667), img('every-year-2.jpg', .667), img('every-year-3.jpg', .667)] },
   ];
 
   const PIC_H = 20;    // every picture has this height, vh
-  const MIN_BOTTOM = .25;   // no work's text ends higher than this share of the page, so the picture fits above
-  const GAP = 64;      // space kept between two works, px
+  const GAP = 40;      // space kept around each title, px
 
   const column = document.querySelector('[data-id="work"]');
   const shown = WORKS.map(() => 0);   // which picture each work shows
@@ -153,59 +151,59 @@
   WORKS.forEach((w, i) => {
     const el = document.createElement('div');
     el.className = 'work' + (w.images.length > 1 ? ' many' : '');
-    el.innerHTML = `<img><div>${[w.title, ...w.lines].join('<br>')}</div>`;
+    el.innerHTML = `<img><div>${w.title}</div>` + (w.material ? `<div class="material">${w.material}</div>` : '');
     setPic(el.querySelector('img'), w, 0);
-    // Picture goes to the left; only flips right when there is no room on the left
-    el.addEventListener('mouseenter', () => {
-      const pic = el.querySelector('img');
-      pic.style.width = 'auto';
-      el.classList.remove('flip');
-      if (el.getBoundingClientRect().left - 8 < pic.getBoundingClientRect().width) el.classList.add('flip');
-    });
     el.addEventListener('click', () => {
       if (w.images.length < 2) return;
       shown[i] = (shown[i] + 1) % w.images.length;
       setPic(el.querySelector('img'), w, shown[i]);
-      el.dispatchEvent(new Event('mouseenter'));
     });
     column.appendChild(el);
   });
 
-  // Spread the works at random over the free space: not on the menu or the other texts,
-  // not on each other. Seeded, so the layout is the same on every visit.
+  // Spread the titles at random. A title and its picture (left of it, any of its images)
+  // never cover the menu, the other texts or another title. Pictures may overlap each other,
+  // since only one shows at a time. Seeded, so the layout is the same on every visit.
   function scatter() {
     if (!column.classList.contains('on')) return;
     let seed = 11;
     const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     const pad = 16, edge = 24;
-    const grow = (r, g) => ({ l: r.left - g, t: r.top - g, r: r.right + g, b: r.bottom + g });
+    const grow = (r, g) => ({ l: r.l - g, t: r.t - g, r: r.r + g, b: r.b + g });
+    const rect = el => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
     const hit = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
+    const inside = a => a.l >= edge && a.t >= edge && a.r <= innerWidth - edge && a.b <= innerHeight - edge;
 
-    const menu = [grow(document.querySelector('.menu').getBoundingClientRect(), 24)];
-    // The other texts, measured even when closed, so the works never land under them
-    const texts = [...document.querySelectorAll('section:not([data-id="work"])')].map(sec => {
-      const was = sec.classList.contains('on');
-      if (!was) { sec.style.visibility = 'hidden'; sec.classList.add('on'); }
-      const r = grow(sec.getBoundingClientRect(), pad);
-      if (!was) { sec.classList.remove('on'); sec.style.visibility = ''; }
-      return r;
-    });
+    const menu = [grow(rect(document.querySelector('.menu')), 24)];
+    // The other texts that are open right now (the works are placed again when that changes)
+    const texts = [...document.querySelectorAll('section.on:not([data-id="work"])')].map(sec => grow(rect(sec), pad));
 
-    const placed = [];
-    column.querySelectorAll('.work').forEach(el => {
+    const picH = innerHeight * PIC_H / 100;
+    const titles = [], pics = [];
+    column.querySelectorAll('.work').forEach((el, i) => {
+      el.classList.add('measure');   // size with the material line showing
       const w = el.offsetWidth, h = el.offsetHeight;
-      let box;
-      for (let tries = 0; tries < 600; tries++) {
-        const x = edge + rand() * Math.max(0, innerWidth - w - 2 * edge);
-        // Bottom at least a quarter down the page, so the picture above has room
-        const minB = innerHeight * MIN_BOTTOM, y = Math.max(edge, minB - h) + rand() * Math.max(0, innerHeight - edge - Math.max(edge + h, minB));
-        box = { l: x, t: y, r: x + w, b: y + h };
-        const avoid = tries < 400 ? [...menu, ...texts, ...placed] : [...menu, ...placed];
-        if (!avoid.some(a => hit(box, a))) break;
+      el.classList.remove('measure');
+      const picW = picH * Math.max(...WORKS[i].images.map(im => im.ratio));
+      let T, P, ok = false, best = null;
+      for (let tries = 0; tries < 3000 && !ok; tries++) {
+        const x = edge + picW + 8 + rand() * Math.max(0, innerWidth - 2 * edge - picW - 8 - w);
+        const y = edge + rand() * Math.max(0, innerHeight - 2 * edge - h);
+        T = { l: x, t: y, r: x + w, b: y + h };
+        P = { l: x - 8 - picW, t: y + h - picH, r: x - 8, b: y + h };
+        // Count what this spot would cover; zero means free
+        const clash = [...menu, ...texts].filter(a => hit(T, a) || hit(P, a)).length
+          + titles.filter(a => hit(T, grow(a, GAP)) || hit(P, grow(a, pad))).length
+          + pics.filter(a => hit(T, grow(a, pad))).length
+          + (inside(P) ? 0 : 1);
+        ok = clash === 0;
+        if (!best || clash < best.clash) best = { clash, T, P };
       }
-      el.style.left = box.l + 'px';
-      el.style.top = box.t + 'px';
-      placed.push(grow({ left: box.l, top: box.t, right: box.r, bottom: box.b }, GAP));
+      if (!ok) ({ T, P } = best);   // no free spot: take the one that covers least
+      el.style.left = T.l + 'px';
+      el.style.top = T.t + 'px';
+      titles.push(T); pics.push(P);
+      if (!ok) console.warn('No free spot for', WORKS[i].title);
     });
   }
 
@@ -214,7 +212,7 @@
     const s = document.querySelector(`section[data-id="${id}"]`);
     if (!s || s.classList.contains('on')) return;
     s.classList.add('on');
-    if (id === 'work') scatter();
+    scatter();
   }
 
   document.querySelectorAll('.menu > a').forEach(a => a.addEventListener('click', e => {
