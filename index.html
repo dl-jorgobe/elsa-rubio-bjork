@@ -24,7 +24,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     display: grid;
-    grid-template-columns: repeat(6, auto);
+    grid-template-columns: repeat(4, auto);
     column-gap: .25em;
     white-space: nowrap;
     z-index: 10;
@@ -33,20 +33,15 @@
   .menu a:nth-child(2) { grid-area: 2 / 2; }
   .menu a:nth-child(3) { grid-area: 3 / 3; }
   .menu a:nth-child(4) { grid-area: 4 / 4; }
-  .menu a:nth-child(5) { grid-area: 5 / 5; }
-  .menu a:nth-child(6) { grid-area: 6 / 6; }
 
   section { display: none; position: fixed; z-index: 5; }
   section.on { display: block; }
 
-  /* Education and contact line up with their word in the menu (left edge),
-     centred between the menu and the top / bottom of the page. Placed by place() below. */
-  section.near { width: 300px; transform: translateY(-50%); }
-
-  /* Exhibitions top left; bio at the bottom, left edge on the name (set by place()) */
-  section[data-id="exhibitions"] { top: 24px; left: 24px; width: min(340px, 40vw); }
-  section[data-id="bio"] { bottom: 24px; left: 24px; width: min(340px, 40vw); }
-  .head { margin-bottom: 1em; }
+  /* CV top left; about at the bottom, left edge on the name (set by place()) */
+  section[data-id="cv"] { top: 24px; left: 24px; width: min(340px, 40vw); max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
+  section[data-id="cv"]::-webkit-scrollbar { display: none; }
+  section[data-id="cv"] .head:not(:first-child) { margin-top: 2em; }
+  section[data-id="about"] { bottom: 24px; left: 24px; width: min(340px, 40vw); }
 
   /* Works: titles scattered over the page (placed by scatter() below). Hovering one shows its
      picture to the left (bottoms aligned) and the material under the title; click steps to the next picture. */
@@ -63,25 +58,17 @@
 <nav class="menu">
   <a href="./" data-to="">Elsa Rubio Björk,</a>
   <a href="#" data-to="work">works,</a>
-  <a href="#" data-to="exhibitions">exhibitions,</a>
-  <a href="#" data-to="bio">bio,</a>
-  <a href="#" data-to="education">education,</a>
-  <a href="#" data-to="contact">contact.</a>
+  <a href="#" data-to="cv">CV,</a>
+  <a href="#" data-to="about">about.</a>
 </nav>
 
-<section data-id="education" class="near"><div>
+<section data-id="cv">
+  <p class="head">Education</p>
   <p>BA in Fine Arts, Gerrit Rietveld Academie, Amsterdam, The Netherlands, 2022–2026</p>
   <p>Artschool Distance Course, Konstskolan Distans, Ölands Folkhögskola, 2022–2023</p>
   <p>Preparatory year 2 (Fine Arts), Konstskolan 2, Ölands Folkhögskola, Sweden, 2021–2022</p>
   <p>Art foundation year, Konstnärlig grundutbildning, Folkuniversitet Stockholm, Sweden, 2020–2021</p>
-</div></section>
-<section data-id="contact" class="near"><div>
-  <p><a href="https://www.instagram.com/elssssita/" target="_blank" rel="noopener">@elssssita</a><br>
-    <a href="mailto:elsa.rb.98@gmail.com">elsa.rb.98@gmail.com</a><br>
-    +46 76-306 55 45</p>
-</div></section>
-
-<section data-id="exhibitions">
+  <p class="head">Exhibitions</p>
   <p>2026 “Upspring”, M4 Gastatelier, Amsterdam, NL</p>
   <p>2026 “Worn and Seen”, Amsterdam, NL</p>
   <p>2025 “New Years Edition by Palet”, curated by Eva Van Wolferen, Sissi’s, Amsterdam, NL</p>
@@ -97,9 +84,12 @@
   <p>2021 “Socker, Spice &amp; Everything Nice”, Mörbylånga Sugar Mill, Öland, SE</p>
 </section>
 
-<section data-id="bio">
+<section data-id="about">
   <p>Elsa Rubio Björk (she/her, b. 1998, Cádiz) is a Swedish and Spanish artist based in Amsterdam. In her sculptural practice, Björk works with make-overs; recognizable everyday objects and tropes that get enlarged, distorted, manipulated, or ridiculed. Through replicas and modified ready-mades, she plays with the given associations of objects to examine the relationships we already have to them in order to challenge their narratives. With sharp irony and bold directness, Björk approaches more sensitive subjects such as power structures, social stereotypes as well as gendered and class-based dynamics and processes of objectification. Her work draws inspiration from internet, pop culture and consumerism. Referring to her sculptures as performers, Björk presents well-known tropes and images cast as recognizable characters, starring in a familiar play where the plot has been changed.</p>
   <p>Björk’s works have previously been exhibited at Den Frie, Centre of Contemporary Art in Denmark for Kunstnernes Efterårsudstilling 2025, and at Kalmars Contemporary Art Museum, Sweden.</p>
+  <p><a href="https://www.instagram.com/elssssita/" target="_blank" rel="noopener">@elssssita</a><br>
+    <a href="mailto:elsa.rb.98@gmail.com">elsa.rb.98@gmail.com</a><br>
+    +46 76-306 55 45</p>
 </section>
 
 <section data-id="work"></section>
@@ -220,29 +210,15 @@
   }));
 
   function place() {
-    const menu = document.querySelector('.menu').getBoundingClientRect();
-    const edu = document.querySelector('.menu [data-to="education"]').getBoundingClientRect();
-    const con = document.querySelector('.menu [data-to="contact"]').getBoundingClientRect();
-    const e = document.querySelector('section[data-id="education"]').style;
-    const c = document.querySelector('section[data-id="contact"]').style;
-    e.left = edu.left + 'px'; e.top = menu.top / 2 + 'px';
     const name = document.querySelector('.menu [data-to=""]').getBoundingClientRect();
-    const bio = document.querySelector('section[data-id="bio"]');
-    bio.style.left = name.left + 'px';
-    // Measure the bio even when closed, so contact always sits between "contact." and the bio
-    const wasOpen = bio.classList.contains('on');
-    if (!wasOpen) { bio.style.visibility = 'hidden'; bio.classList.add('on'); }
-    const bioTop = bio.getBoundingClientRect().top;
-    if (!wasOpen) { bio.classList.remove('on'); bio.style.visibility = ''; }
-    c.left = con.left + 'px'; c.top = (con.bottom + bioTop) / 2 + 'px';
+    document.querySelector('section[data-id="about"]').style.left = name.left + 'px';
   }
-  // Contact and bio first, then the works around them
   const layout = () => { place(); scatter(); };
   layout();
   addEventListener('resize', layout);
   addEventListener('load', layout);
 
-  // ?open=work,bio opens sections on load
+  // ?open=work,about opens sections on load
   new URLSearchParams(location.search).get('open')?.split(',').forEach(open);
 </script>
 </body>
